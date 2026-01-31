@@ -164,7 +164,11 @@ public class JvmBytecodeGenerator
 
     private void GenerateIntLiteral(StringBuilder sb, IntLiteralNode intLit)
     {
-        if (intLit.Value >= -1 && intLit.Value <= 5)
+        if (intLit.Value == -1)
+        {
+            sb.AppendLine("  iconst_m1");
+        }
+        else if (intLit.Value >= 0 && intLit.Value <= 5)
         {
             sb.AppendLine($"  iconst_{intLit.Value}");
         }

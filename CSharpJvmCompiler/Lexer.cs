@@ -56,6 +56,21 @@ public class Lexer
         var startLine = _line;
         var startColumn = _column;
 
+        // Comments
+        if (currentChar == '/' && _position + 1 < _source.Length)
+        {
+            if (_source[_position + 1] == '/')
+            {
+                SkipSingleLineComment();
+                return NextToken();
+            }
+            else if (_source[_position + 1] == '*')
+            {
+                SkipMultiLineComment();
+                return NextToken();
+            }
+        }
+
         // String literals
         if (currentChar == '"')
         {
@@ -194,5 +209,48 @@ public class Lexer
         var type = Keywords.ContainsKey(value) ? Keywords[value] : TokenType.Identifier;
         
         return new Token(type, value, startLine, startColumn);
+    }
+
+    private void SkipSingleLineComment()
+    {
+        // Skip the //
+        _position += 2;
+        _column += 2;
+        
+        // Skip until end of line
+        while (_position < _source.Length && _source[_position] != '\n')
+        {
+            _position++;
+            _column++;
+        }
+    }
+
+    private void SkipMultiLineComment()
+    {
+        // Skip the /*
+        _position += 2;
+        _column += 2;
+        
+        // Skip until */
+        while (_position + 1 < _source.Length)
+        {
+            if (_source[_position] == '*' && _source[_position + 1] == '/')
+            {
+                _position += 2;
+                _column += 2;
+                break;
+            }
+            
+            if (_source[_position] == '\n')
+            {
+                _line++;
+                _column = 1;
+            }
+            else
+            {
+                _column++;
+            }
+            _position++;
+        }
     }
 }
